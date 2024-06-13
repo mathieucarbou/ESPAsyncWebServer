@@ -19,7 +19,7 @@
 */
 #include "Arduino.h"
 #include "AsyncEventSource.h"
-#ifndef ESP8266
+#if defined(ESP32)
   #include <rom/ets_sys.h>
 #endif
 
@@ -193,9 +193,9 @@ void AsyncEventSourceClient::_queueMessage(AsyncEventSourceMessage *dataMessage)
   //length() is not thread-safe, thus acquiring the lock before this call..
   _lockmq.lock();
   if(_messageQueue.length() >= SSE_MAX_QUEUED_MESSAGES){
-#ifdef ESP8266
+#if defined(ESP8266)
     ets_printf(String(F("ERROR: Too many messages queued\n")).c_str());
-#else
+#elif defined(ESP32)
     log_e("Too many messages queued: deleting message");
 #endif
       delete dataMessage;

@@ -21,16 +21,21 @@
 #define ASYNCEVENTSOURCE_H_
 
 #include <Arduino.h>
-#ifdef ESP32
-#include <AsyncTCP.h>
-#ifndef SSE_MAX_QUEUED_MESSAGES
-#define SSE_MAX_QUEUED_MESSAGES 32
-#endif
-#else
-#include <ESPAsyncTCP.h>
-#ifndef SSE_MAX_QUEUED_MESSAGES
-#define SSE_MAX_QUEUED_MESSAGES 8
-#endif
+#if defined(ESP32)
+  #include <AsyncTCP.h>
+  #ifndef SSE_MAX_QUEUED_MESSAGES
+    #define SSE_MAX_QUEUED_MESSAGES 32
+  #endif
+#elif defined(TARGET_RP2040)
+  #include <AsyncTCP_RP2040W.h>
+  #ifndef SSE_MAX_QUEUED_MESSAGES
+    #define SSE_MAX_QUEUED_MESSAGES 32
+  #endif
+#elif defined(ESP8266)
+  #include <ESPAsyncTCP.h>
+  #ifndef SSE_MAX_QUEUED_MESSAGES
+    #define SSE_MAX_QUEUED_MESSAGES 8
+  #endif
 #endif
 
 #include <ESPAsyncWebServer.h>

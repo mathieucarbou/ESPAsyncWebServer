@@ -22,17 +22,25 @@
 #define ASYNCWEBSOCKET_H_
 
 #include <Arduino.h>
-#ifdef ESP32
-#include <AsyncTCP.h>
-#ifndef WS_MAX_QUEUED_MESSAGES
-#define WS_MAX_QUEUED_MESSAGES 32
-#endif
+#if defined(ESP32)
+  #include <AsyncTCP.h>
+  #ifndef WS_MAX_QUEUED_MESSAGES
+    #define WS_MAX_QUEUED_MESSAGES 32
+  #endif
+#elif defined(TARGET_RP2040)
+  #include <AsyncTCP_RP2040W.h>
+  #ifndef WS_MAX_QUEUED_MESSAGES
+    #define WS_MAX_QUEUED_MESSAGES 32
+  #endif
+#elif defined(ESP8266)
+  #include <ESPAsyncTCP.h>
+  #ifndef WS_MAX_QUEUED_MESSAGES
+    #define WS_MAX_QUEUED_MESSAGES 8
+  #endif
 #else
-#include <ESPAsyncTCP.h>
-#ifndef WS_MAX_QUEUED_MESSAGES
-#define WS_MAX_QUEUED_MESSAGES 8
+  #error Platform not supported
 #endif
-#endif
+
 #include <ESPAsyncWebServer.h>
 
 #include "AsyncWebSynchronization.h"

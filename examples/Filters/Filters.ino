@@ -1,12 +1,15 @@
 // Reproduced issue https://github.com/mathieucarbou/ESPAsyncWebServer/issues/26
 
 #include <DNSServer.h>
-#ifdef ESP32
-#include <AsyncTCP.h>
-#include <WiFi.h>
+#if defined(ESP32)
+  #include <AsyncTCP.h>
+  #include <WiFi.h>
 #elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
+  #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
+#elif defined(TARGET_RP2040)
+  #include <WiFi.h>
+  #include <WebServer.h>
 #endif
 #include "ESPAsyncWebServer.h"
 

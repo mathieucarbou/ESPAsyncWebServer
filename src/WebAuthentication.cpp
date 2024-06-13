@@ -20,10 +20,13 @@
 */
 #include "WebAuthentication.h"
 #include <libb64/cencode.h>
-#ifdef ESP32
-#include <MD5Builder.h>
+
+#if defined(ESP32)
+  #include <MD5Builder.h>
+#elif defined(TARGET_RP2040)
+  #include <MD5Builder.h>
 #else
-#include "md5.h"
+  #include "md5.h"
 #endif
 
 
@@ -65,7 +68,7 @@ bool checkBasicAuthentication(const char * hash, const char * username, const ch
 }
 
 static bool getMD5(uint8_t * data, uint16_t len, char * output){//33 bytes or more
-#ifdef ESP32
+#if defined(ESP32) || defined(TARGET_RP2040)
   MD5Builder md5;
   md5.begin();
   md5.add(data, len);
