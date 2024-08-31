@@ -244,13 +244,12 @@ void AsyncWebServerResponse::addHeader(const char* name, const char* value) {
 }
 
 String AsyncWebServerResponse::_assembleHead(uint8_t version) {
-  if (version) {
-    addHeader(T_Accept_Ranges, T_none);
-    if (_chunked)
-      addHeader(Transfer_Encoding, T_chunked);
-  }
+  bool _sendAcceptsRange = true;
+  bool _sendTransferEncoding = true;
+  bool _sendContentType = true;
+
   String out;
-  int bufSize = 300;
+  const size_t bufSize = 300;
   char buf[bufSize];
 
 #ifndef ESP8266
@@ -260,20 +259,33 @@ String AsyncWebServerResponse::_assembleHead(uint8_t version) {
 #endif
   out.concat(buf);
 
-  if (_sendContentLength) {
-    snprintf_P(buf, bufSize, PSTR("Content-Length: %d\r\n"), _contentLength);
-    out.concat(buf);
-  }
-  if (_contentType.length()) {
-    snprintf_P(buf, bufSize, PSTR("Content-Type: %s\r\n"), _contentType.c_str());
-    out.concat(buf);
-  }
-
   for (const auto& header : _headers) {
+    const String headerName = header.name();
+
+    _sendAcceptsRange &= !headerName.equalsIgnoreCase(T_Accept_Ranges);
+    _sendTransferEncoding &= !headerName.equalsIgnoreCase(T_Transfer_Encoding);
+    _sendContentType &= !headerName.equalsIgnoreCase(T_Content_Type);
+
     snprintf_P(buf, bufSize, PSTR("%s: %s\r\n"), header.name().c_str(), header.value().c_str());
     out.concat(buf);
   }
   _headers.clear();
+
+  if (version) {
+    if (_sendAcceptsRange)
+      addHeader(T_Accept_Ranges, T_none);
+    if (_sendTransferEncoding && _chunked)
+      addHeader(T_Transfer_Encoding, T_chunked);
+  }
+
+  if (_sendContentLength) {
+    snprintf_P(buf, bufSize, PSTR("Content-Length: %d\r\n"), _contentLength);
+    out.concat(buf);
+  }
+  if (_sendContentType && _contentType.length()) {
+    snprintf_P(buf, bufSize, PSTR("Content-Type: %s\r\n"), _contentType.c_str());
+    out.concat(buf);
+  }
 
   out.concat(T_rn);
   _headLength = out.length();
