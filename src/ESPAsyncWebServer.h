@@ -191,7 +191,7 @@ class AsyncWebServerRequest {
     AsyncWebServer* _server;
     AsyncWebHandler* _handler;
     AsyncWebServerResponse* _response;
-    std::vector<String> _interestingHeaders;
+    std::list<String> _interestingHeaders;
     ArDisconnectHandler _onDisconnectfn;
 
     String _temp;
@@ -627,8 +627,8 @@ typedef std::function<void(AsyncWebServerRequest* request, uint8_t* data, size_t
 class AsyncWebServer {
   protected:
     AsyncServer _server;
-    std::list<std::shared_ptr<AsyncWebRewrite>> _rewrites;
-    std::list<std::unique_ptr<AsyncWebHandler>> _handlers;
+    std::vector<std::shared_ptr<AsyncWebRewrite>> _rewrites;
+    std::vector<std::unique_ptr<AsyncWebHandler>> _handlers;
     AsyncCallbackWebHandler* _catchAllHandler;
 
   public:

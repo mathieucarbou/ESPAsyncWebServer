@@ -86,13 +86,10 @@ bool AsyncWebServer::removeRewrite(AsyncWebRewrite* rewrite) {
 }
 
 bool AsyncWebServer::removeRewrite(const char* from, const char* to) {
-  for (auto r = _rewrites.begin(); r != _rewrites.end(); ++r) {
-    if (r->get()->from() == from && r->get()->toUrl() == to) {
-      _rewrites.erase(r);
-      return true;
-    }
-  }
-  return false;
+  // remove all rewrites from _rewrites vector matching from and to and resize the vector
+  const size_t size = _rewrites.size();
+  _rewrites.erase(std::remove_if(_rewrites.begin(), _rewrites.end(), [from, to](std::shared_ptr<AsyncWebRewrite> r) { return r->from() == from && r->toUrl() == to; }), _rewrites.end());
+  return size != _rewrites.size();
 }
 
 AsyncWebRewrite& AsyncWebServer::rewrite(const char* from, const char* to) {
@@ -106,13 +103,10 @@ AsyncWebHandler& AsyncWebServer::addHandler(AsyncWebHandler* handler) {
 }
 
 bool AsyncWebServer::removeHandler(AsyncWebHandler* handler) {
-  for (auto i = _handlers.begin(); i != _handlers.end(); ++i) {
-    if (i->get() == handler) {
-      _handlers.erase(i);
-      return true;
-    }
-  }
-  return false;
+  // remove all handlers from _handlers vector being equal to handler and resize the vector
+  const size_t size = _handlers.size();
+  _handlers.erase(std::remove_if(_handlers.begin(), _handlers.end(), [handler](std::unique_ptr<AsyncWebHandler>& h) { return h.get() == handler; }), _handlers.end());
+  return size != _handlers.size();
 }
 
 void AsyncWebServer::begin() {
